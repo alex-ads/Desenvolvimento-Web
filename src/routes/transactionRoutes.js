@@ -1,15 +1,31 @@
-const express = require('express'); // Importa o framework Express
-const router = express.Router(); // Cria um novo roteador do Express
-const { insertTransaction, findAllTransactions, findTransactionById, updateTransaction, deleteTransaction } = require("../db/transactionQueries"); // Importa funções relacionadas ao banco de dados
-const rescue = require('express-rescue'); // Importa o middleware express-rescue
+const express = require('express');
+const router = express.Router();
+const { insertTransaction, findAllTransactions, findTransactionById, updateTransaction, deleteTransaction } = require("../db/transactionQueries");
+const rescue = require('express-rescue');
+const { findById } = require("../db/peopleQueries");
+const validateTransaction = require("../db/middlewares/transactionMiddlewares")
 
 // Rota para criar uma nova transação
-router.post("/", async (req, res) => {
+router.post("/", validateTransaction, async (req, res) => {
   const transaction = req.body;
-  const [result] = await insertTransaction(transaction);
-  
-  return res.status(201).json({ message: `Transação cadastrada com o id ${result.insertId}`});
-})
+
+  try {
+    // Verifica se o person_id da transação existe na tabela people
+    const [person] = await findById(transaction.person_id);
+
+    if (!person) {
+      return res.status(400).json({ message: "ID da pessoa não encontrado. Não é possível criar a transação." });
+    }
+
+    const [result] = await insertTransaction(transaction);
+
+    return res.status(201).json({ message: `Transação cadastrada com o id ${result.insertId}` });
+  } catch (error) {
+    console.error("Erro ao criar transação:", error);
+    return res.status(500).json({ message: "Erro ao criar transação. Por favor, tente novamente mais tarde." });
+  }
+});
+
 
 // Rota para listar todas as transações
 router.get("/", rescue(async (req, res) => {

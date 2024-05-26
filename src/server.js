@@ -1,7 +1,9 @@
 // Importa o módulo 'app' que representa a aplicação Express
 const app = require('./app');
+
 // Importa o módulo de conexão com o banco de dados
 const connection = require('./db/connection');
+
 // Define a porta em que o servidor irá escutar
 const PORT = 3001;
 

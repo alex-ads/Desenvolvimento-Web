@@ -1,5 +1,6 @@
 // Importa o framework Express
 const express = require("express");
+
 // Importa as rotas relacionadas a peoples
 const peopleRoute = require("./routes/peopleRoutes");
 // Importa as rotas relacionadas a transactionRoute
